@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # News Portal — README
 
 Коротко про проєкт, інструкції запуску та де що лежить.
@@ -106,3 +107,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+=======
+# news-portal
+Курсова робота студента: Панчишкін Богдан
+>>>>>>> 8d3dbffa6244017babd89cf940d19233b665b58b
