@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # News Portal — README
 
 Коротко про проєкт, інструкції запуску та де що лежить.
@@ -108,6 +107,5 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 =======
-# news-portal
+
 Курсова робота студента: Панчишкін Богдан
->>>>>>> 8d3dbffa6244017babd89cf940d19233b665b58b
