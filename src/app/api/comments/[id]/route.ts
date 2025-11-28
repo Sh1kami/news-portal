@@ -43,7 +43,8 @@ export async function PUT(request: Request, context: Context) {
 			)
 		}
 
-		if (comment.authorId !== session.user.id) {
+		// Allow the author or an ADMIN to edit
+		if (comment.authorId !== session.user.id && session.user.role !== 'ADMIN') {
 			return NextResponse.json(
 				{ error: 'Недостатньо прав для редагування цього коментаря' },
 				{ status: 403 }
@@ -102,7 +103,8 @@ export async function DELETE(request: Request, context: Context) {
 			)
 		}
 
-		if (comment.authorId !== session.user.id) {
+		// Allow the author or an ADMIN to delete
+		if (comment.authorId !== session.user.id && session.user.role !== 'ADMIN') {
 			return NextResponse.json(
 				{ error: 'Недостатньо прав для видалення цього коментаря' },
 				{ status: 403 }

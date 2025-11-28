@@ -15,7 +15,7 @@ async function getPost(id: string) {
 			category: { select: { name: true, slug: true } },
 			comments: {
 				include: {
-					author: { select: { name: true, email: true } },
+					author: { select: { id: true, name: true, email: true } },
 					ratings: true,
 					_count: { select: { ratings: true } },
 				},

@@ -59,14 +59,14 @@ export default async function CategoriesPage() {
 	}
 
 	return (
-		<div className='min-h-screen bg-gray-50'>
+		<div className='min-h-screen bg-gray-900'>
 			<Header />
 			<main className='max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8'>
 				<div className='mb-8'>
-					<h1 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-4'>
+					<h1 className='text-3xl sm:text-4xl font-bold text-white mb-4'>
 						Категорії новин
 					</h1>
-					<p className='text-lg text-gray-600'>
+					<p className='text-lg text-gray-300'>
 						Оберіть категорію для перегляду відповідних новин
 					</p>
 				</div>
@@ -75,20 +75,20 @@ export default async function CategoriesPage() {
 					{categories.map(category => (
 						<div
 							key={category.id}
-							className='bg-white rounded-lg shadow-lg overflow-hidden'
+							className='bg-gray-800 rounded-lg shadow-lg overflow-hidden'
 						>
-							<div className='p-6 border-b border-gray-200'>
+							<div className='p-6 border-b border-gray-700'>
 								<div className='flex items-center justify-between'>
 									<div>
-										<h2 className='text-2xl font-bold text-gray-900'>
+										<h2 className='text-2xl font-bold text-white'>
 											{category.name}
 										</h2>
 										{category.description && (
-											<p className='text-gray-600 mt-2'>
+											<p className='text-gray-400 mt-2'>
 												{category.description}
 											</p>
 										)}
-										<p className='text-sm text-gray-500 mt-1'>
+										<p className='text-sm text-gray-400 mt-1'>
 											{category._count.posts} публікацій
 										</p>
 									</div>
@@ -104,7 +104,7 @@ export default async function CategoriesPage() {
 
 							{category.posts.length > 0 && (
 								<div className='p-6'>
-									<h3 className='text-lg font-semibold text-gray-900 mb-4'>
+									<h3 className='text-lg font-semibold text-white mb-4'>
 										Останні новини
 									</h3>
 									<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
@@ -112,12 +112,12 @@ export default async function CategoriesPage() {
 											<Link
 												key={post.id}
 												href={`/news/${post.id}`}
-												className='block bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors'
+												className='block bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition-colors'
 											>
-												<h4 className='font-medium text-gray-900 line-clamp-2 mb-2'>
+												<h4 className='font-medium text-white line-clamp-2 mb-2'>
 													{post.title}
 												</h4>
-												<div className='flex items-center justify-between text-sm text-gray-500'>
+												<div className='flex items-center justify-between text-sm text-gray-400'>
 													<span>{post.author.name}</span>
 													<div className='flex items-center space-x-2'>
 														<span>

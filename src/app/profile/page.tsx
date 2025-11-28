@@ -1,5 +1,6 @@
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import ClientImage from '@/components/ui/client-image'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import {
@@ -68,18 +69,11 @@ export default async function ProfilePage() {
 								<div className='bg-gray-800 p-1 rounded-full'>
 									{user.image ? (
 										<div className='w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden'>
-											<img
+											<ClientImage
 												src={user.image}
 												alt={user.name || 'User'}
 												className='w-full h-full object-cover'
-												onError={e => {
-													e.currentTarget.style.display = 'none'
-													e.currentTarget.nextElementSibling?.classList.remove(
-														'hidden'
-													)
-												}}
 											/>
-											<User size={48} className='text-gray-400 hidden' />
 										</div>
 									) : (
 										<div className='w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gray-700 flex items-center justify-center'>

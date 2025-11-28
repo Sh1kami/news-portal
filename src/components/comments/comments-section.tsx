@@ -27,6 +27,7 @@ export function CommentsSection({
 	comments,
 	session,
 }: CommentsSectionProps) {
+	const [localComments, setLocalComments] = useState<Comment[]>(comments)
 	const [newComment, setNewComment] = useState('')
 	const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
 	const [editContent, setEditContent] = useState('')
@@ -50,8 +51,10 @@ export function CommentsSection({
 			})
 
 			if (response.ok) {
+				const created = await response.json()
 				setNewComment('')
-				window.location.reload()
+				// prepend created comment to local list
+				setLocalComments(prev => [created, ...prev])
 			}
 		} catch (error) {
 			console.error('Error submitting comment:', error)
@@ -86,9 +89,12 @@ export function CommentsSection({
 			})
 
 			if (response.ok) {
+				const updated = await response.json()
 				setEditingCommentId(null)
 				setEditContent('')
-				window.location.reload()
+				setLocalComments(prev =>
+					prev.map(c => (c.id === updated.id ? updated : c))
+				)
 			}
 		} catch (error) {
 			console.error('Error updating comment:', error)
@@ -106,7 +112,7 @@ export function CommentsSection({
 			})
 
 			if (response.ok) {
-				window.location.reload()
+				setLocalComments(prev => prev.filter(c => c.id !== commentId))
 			}
 		} catch (error) {
 			console.error('Error deleting comment:', error)
@@ -122,10 +128,10 @@ export function CommentsSection({
 	}
 
 	return (
-		<div className='bg-white shadow-lg rounded-lg p-6'>
-			<h2 className='text-2xl font-bold text-gray-900 mb-6 flex items-center'>
+		<div className='bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6'>
+			<h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center'>
 				<MessageCircle size={24} className='mr-2' />
-				Коментарі ({comments.length})
+				Коментарі ({localComments.length})
 			</h2>
 
 			{/* Форма добавления комментария */}
@@ -136,7 +142,7 @@ export function CommentsSection({
 						onChange={e => setNewComment(e.target.value)}
 						placeholder='Залиште ваш коментар...'
 						rows={4}
-						className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+						className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500'
 						required
 					/>
 					<div className='mt-2 flex justify-end'>
@@ -151,8 +157,8 @@ export function CommentsSection({
 					</div>
 				</form>
 			) : (
-				<div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
-					<p className='text-blue-800'>
+				<div className='bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6'>
+					<p className='text-blue-800 dark:text-blue-200'>
 						Будь ласка,{' '}
 						<a href='/auth/signin' className='font-medium underline'>
 							увійдіть
@@ -164,32 +170,34 @@ export function CommentsSection({
 
 			{/* Список комментариев */}
 			<div className='space-y-6'>
-				{comments.length === 0 ? (
-					<p className='text-gray-500 text-center py-8'>
+				{localComments.length === 0 ? (
+					<p className='text-gray-500 dark:text-gray-400 text-center py-8'>
 						Ще немає коментарів. Будьте першим!
 					</p>
 				) : (
-					comments.map(comment => (
+					localComments.map(comment => (
 						<div
 							key={comment.id}
-							className='border-b border-gray-200 pb-6 last:border-0'
+							className='border-b border-gray-200 dark:border-gray-700 pb-6 last:border-0'
 						>
 							<div className='flex items-start justify-between mb-2'>
 								<div className='flex items-center'>
-									<div className='bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center mr-3'>
-										<span className='text-sm font-medium text-gray-600'>
+									<div className='bg-gray-300 dark:bg-gray-600 rounded-full w-8 h-8 flex items-center justify-center mr-3'>
+										<span className='text-sm font-medium text-gray-600 dark:text-gray-200'>
 											{comment.author.name?.charAt(0) ||
 												comment.author.email.charAt(0).toUpperCase()}
 										</span>
 									</div>
 									<div>
-										<p className='font-medium text-gray-900'>
+										<p className='font-medium text-gray-900 dark:text-gray-100'>
 											{comment.author.name || 'Анонімний користувач'}
 										</p>
-										<p className='text-sm text-gray-500'>
+										<p className='text-sm text-gray-500 dark:text-gray-400'>
 											{new Date(comment.createdAt).toLocaleDateString('uk-UA')}
 											{comment.updatedAt > comment.createdAt && (
-												<span className='text-gray-400 ml-1'>(ред.)</span>
+												<span className='text-gray-400 dark:text-gray-500 ml-1'>
+													(ред.)
+												</span>
 											)}
 										</p>
 									</div>
@@ -209,7 +217,7 @@ export function CommentsSection({
 												</button>
 												<button
 													onClick={handleCancelEdit}
-													className='p-1 text-gray-600 hover:text-gray-700'
+													className='p-1 text-gray-600 dark:text-gray-200 hover:text-gray-700'
 												>
 													<X size={16} />
 												</button>
@@ -240,11 +248,13 @@ export function CommentsSection({
 										value={editContent}
 										onChange={e => setEditContent(e.target.value)}
 										rows={3}
-										className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+										className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500'
 									/>
 								</div>
 							) : (
-								<p className='text-gray-700 ml-11'>{comment.content}</p>
+								<p className='text-gray-700 dark:text-gray-200 ml-11'>
+									{comment.content}
+								</p>
 							)}
 						</div>
 					))

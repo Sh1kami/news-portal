@@ -1,14 +1,23 @@
+import PostsTable from '@/components/admin/posts-table'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { ArrowLeft, Edit, Eye, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
 import { getServerSession } from 'next-auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-async function getPosts() {
+async function getPosts(filter?: string) {
+	const where: any = {}
+
+	if (filter === 'visible') {
+		where.published = true
+		where.publishedAt = { lte: new Date() }
+	}
+
 	return prisma.post.findMany({
+		where,
 		orderBy: { createdAt: 'desc' },
 		include: {
 			author: {
@@ -32,14 +41,19 @@ async function getPosts() {
 	})
 }
 
-export default async function AdminPostsPage() {
+export default async function AdminPostsPage({
+	searchParams,
+}: {
+	searchParams?: { filter?: string }
+}) {
 	const session = await getServerSession(authOptions)
 
 	if (!session || session.user.role !== 'ADMIN') {
 		redirect('/auth/signin')
 	}
 
-	const posts = await getPosts()
+	const filter = searchParams?.filter
+	const posts = await getPosts(filter)
 
 	return (
 		<div className='min-h-screen bg-gray-900'>
@@ -53,13 +67,37 @@ export default async function AdminPostsPage() {
 						<ArrowLeft size={16} className='mr-2' />
 						Назад до адмінки
 					</Link>
-					<Link
-						href='/admin/posts/create'
-						className='inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors'
-					>
-						<Plus size={20} className='mr-2' />
-						Створити пост
-					</Link>
+					<div className='flex items-center space-x-3'>
+						<Link
+							href='/admin/posts/create'
+							className='inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors'
+						>
+							<Plus size={20} className='mr-2' />
+							Створити пост
+						</Link>
+
+						<Link
+							href='/admin/posts?filter=visible'
+							className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+								filter === 'visible'
+									? 'bg-green-600 text-white'
+									: 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+							}`}
+						>
+							Опубліковано
+						</Link>
+
+						<Link
+							href='/admin/posts'
+							className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+								!filter
+									? 'bg-indigo-600 text-white'
+									: 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+							}`}
+						>
+							Усі пости
+						</Link>
+					</div>
 				</div>
 
 				<div className='bg-gray-800 shadow rounded-lg overflow-hidden'>
@@ -70,89 +108,10 @@ export default async function AdminPostsPage() {
 					</div>
 
 					<div className='p-6'>
-						<div className='overflow-x-auto'>
-							<table className='min-w-full divide-y divide-gray-700'>
-								<thead>
-									<tr>
-										<th className='px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-											Заголовок
-										</th>
-										<th className='px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-											Автор
-										</th>
-										<th className='px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-											Категорія
-										</th>
-										<th className='px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-											Статус
-										</th>
-										<th className='px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-											Коментарі
-										</th>
-										<th className='px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-											Дата
-										</th>
-										<th className='px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-											Дії
-										</th>
-									</tr>
-								</thead>
-								<tbody className='divide-y divide-gray-700'>
-									{posts.map(post => (
-										<tr key={post.id}>
-											<td className='px-4 py-4'>
-												<div className='max-w-xs'>
-													<p className='font-medium text-white line-clamp-2'>
-														{post.title}
-													</p>
-												</div>
-											</td>
-											<td className='px-4 py-4 whitespace-nowrap text-sm text-gray-400'>
-												{post.author.name}
-											</td>
-											<td className='px-4 py-4 whitespace-nowrap text-sm text-gray-400'>
-												{post.category.name}
-											</td>
-											<td className='px-4 py-4 whitespace-nowrap'>
-												<span
-													className={`px-2 py-1 text-xs rounded-full ${
-														post.published
-															? 'bg-green-900 text-green-200'
-															: 'bg-yellow-900 text-yellow-200'
-													}`}
-												>
-													{post.published ? 'Опубліковано' : 'Чернетка'}
-												</span>
-											</td>
-											<td className='px-4 py-4 whitespace-nowrap text-sm text-gray-400'>
-												{post._count.comments}
-											</td>
-											<td className='px-4 py-4 whitespace-nowrap text-sm text-gray-400'>
-												{new Date(post.createdAt).toLocaleDateString('uk-UA')}
-											</td>
-											<td className='px-4 py-4 whitespace-nowrap text-sm font-medium'>
-												<div className='flex space-x-2'>
-													<Link
-														href={`/news/${post.id}`}
-														className='text-blue-400 hover:text-blue-300'
-													>
-														<Eye size={16} />
-													</Link>
-													<Link
-														href={`/admin/posts/${post.id}/edit`}
-														className='text-green-400 hover:text-green-300'
-													>
-														<Edit size={16} />
-													</Link>
-													<button className='text-red-400 hover:text-red-300'>
-														<Trash2 size={16} />
-													</button>
-												</div>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
+						{/* client-side posts table handles deletion without full page reload */}
+						<div>
+							{/* @ts-expect-error Server Component -> Client dynamic import */}
+							<PostsTable posts={posts} />
 						</div>
 					</div>
 				</div>

@@ -8,7 +8,10 @@ async function getAllNews(categorySlug?: string) {
 		const where = categorySlug
 			? {
 					published: true,
-					category: { slug: categorySlug },
+					OR: [
+						{ category: { slug: categorySlug } },
+						{ categoryId: categorySlug },
+					],
 			  }
 			: { published: true }
 
@@ -82,9 +85,9 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
 						{categories.map(cat => (
 							<a
 								key={cat.id}
-								href={`/news?category=${cat.slug}`}
+								href={`/news?category=${cat.slug || cat.id}`}
 								className={`px-4 py-2 rounded-lg text-sm ${
-									category === cat.slug
+									category === (cat.slug || cat.id)
 										? 'bg-blue-600 text-white'
 										: 'bg-gray-700 text-gray-300 hover:bg-gray-600'
 								}`}

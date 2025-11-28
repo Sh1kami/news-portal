@@ -27,7 +27,10 @@ async function getAdminStats() {
 	] = await Promise.all([
 		prisma.user.count(),
 		prisma.post.count(),
-		prisma.post.count({ where: { published: true } }),
+		// Count only posts that are published and already visible (publishedAt <= now)
+		prisma.post.count({
+			where: { published: true, publishedAt: { lte: new Date() } },
+		}),
 		prisma.category.count(),
 		prisma.comment.count(),
 	])
@@ -100,13 +103,22 @@ export default async function AdminPage() {
 							Керування контентом та користувачами
 						</p>
 					</div>
-					<Link
-						href='/admin/posts/create'
-						className='inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors'
-					>
-						<Plus size={20} className='mr-2' />
-						Створити пост
-					</Link>
+					<div className='flex space-x-2'>
+						<Link
+							href='/admin/posts/create'
+							className='inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors'
+						>
+							<Plus size={20} className='mr-2' />
+							Створити пост
+						</Link>
+						<Link
+							href='/admin/categories/create'
+							className='inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors'
+						>
+							<Plus size={20} className='mr-2' />
+							Додати категорію
+						</Link>
+					</div>
 				</div>
 
 				{/* Статистика */}
@@ -144,7 +156,7 @@ export default async function AdminPage() {
 					</Link>
 
 					<Link
-						href='/admin/posts'
+						href='/admin/posts?filter=visible'
 						className='bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-700 transition-colors'
 					>
 						<div className='flex items-center'>
@@ -160,7 +172,10 @@ export default async function AdminPage() {
 						</div>
 					</Link>
 
-					<div className='bg-gray-800 rounded-lg shadow p-6'>
+					<Link
+						href='/admin/categories'
+						className='bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-700 transition-colors'
+					>
 						<div className='flex items-center'>
 							<Settings className='h-8 w-8 text-purple-400' />
 							<div className='ml-4'>
@@ -170,7 +185,7 @@ export default async function AdminPage() {
 								</p>
 							</div>
 						</div>
-					</div>
+					</Link>
 
 					<Link
 						href='/admin/comments'
